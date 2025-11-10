@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>About - Toxic Combo Scanner</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/style.css">
+    
+    <style>
+        body {
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+        .readme-container {
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 30px 40px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            line-height: 1.6;
+        }
+        .readme-container h1, .readme-container h2, .readme-container h3 {
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+            margin-top: 25px;
+            margin-bottom: 15px;
+        }
+        .readme-container h1 { font-size: 2em; }
+        .readme-container h2 { font-size: 1.6em; }
+        .readme-container h3 { font-size: 1.3em; }
+        .readme-container code {
+            background: #f0f0f0;
+            padding: 2px 5px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            font-family: monospace;
+        }
+        .readme-container pre code {
+            background: none;
+            padding: 0;
+        }
+        .readme-container a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        .readme-container a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="readme-container">
+        <h1>🔍 Toxic Combo Scanner: Segregation of Duties (SoD) Detector</h1>
+        <p><strong>SoD violation detector with LLM justification for manager-ready reports.</strong></p>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Live Links</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Try the App</strong></td>
+                    <td><a href="https://myapp-production-d4ce.up.railway.app" target="_blank" rel="noopener noreferrer">https://myapp-production-d4ce.up.railway.app</a></td>
+                </tr>
+                <tr>
+                    <td><strong>API Docs (Swagger)</strong></td>
+                    <td><a href="https://myapp-production-d4ce.up.railway.app/docs" target="_blank" rel="noopener noreferrer">https://myapp-production-d4ce.up.railway.app/docs</a></td>
+                </tr>
+                <tr>
+                    <td><strong>Video Walkthrough</strong></td>
+                    <td><a href="https://www.youtube.com/watch?v=3tei_u6LiI8" target="_blank" rel="noopener noreferrer">YouTube Video link</a></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>Project Overview</h2>
+        <p>This service addresses the challenge of identifying <strong>Segregation of Duties (SoD) violations</strong> from large-scale user role assignments. It is built for <strong>memory efficiency</strong>, processing data row-by-row without reliance on tools like Pandas to ensure large CSV files can be handled without memory overflow.</p>
+        <p>The core value proposition is the use of an <strong>LLM (Large Language Model)</strong> to generate <strong>manager-ready justifications</strong> for each detected toxic combination, focusing on optimal and minimally disruptive remediation actions.</p>
+        
+        <hr>
+
+        <h2>🚀 Getting Started (Recommended: Docker Compose)</h2>
+        <p>The preferred and simplest method for running this project is using <strong>Docker Compose</strong>, which manages all dependencies and Bedrock configuration in a single step.</p>
+        
+        <h3>Prerequisites</h3>
+        <ul>
+            <li><strong>Docker and Docker Compose</strong> installed.</li>
+            <li><strong>AWS credentials</strong> configured in your shell environment or a local <code>.env</code> file (required for Bedrock access).</li>
+        </ul>
+
+        <h3>1. Configure AWS Access</h3>
+        <p>Create a <code>.env</code> file in the project root based on the configuration below, including your live AWS credentials for Bedrock access.</p>
+        <pre><code># .env (Example Configuration)
+
+# --- AWS Credentials (Required for Bedrock) ---
+AWS_ACCESS_KEY_ID=AKIA...
+AWS_SECRET_ACCESS_KEY=wXyZ...
+# AWS_SESSION_TOKEN=... (if using temporary credentials)
+
+# --- LLM Configuration (Override defaults in src/config.py) ---
+LLM_PROVIDER=bedrock
+USE_MOCK_LLM=false
+AWS_REGION=eu-central-1
+BEDROCK_MODEL_ID=anthropic.claude-3-haiku-20240307-v1:0
+BEDROCK_MODEL_TEMPERATURE=0.2
+BEDROCK_MODEL_MAX_TOKENS=300
+</code></pre>
+        <p><em>Note: Setting <code>USE_MOCK_LLM=true</code> will bypass the need for AWS credentials entirely.</em></p>
+
+        <h3>2. Build and Run the Service</h3>
+        <p>Run this command from the project root:</p>
+        <pre><code>docker compose up --build
+</code></pre>
+
+        <h3>3. Access the Application</h3>
+        <p>The service will be available at:</p>
+        <ul>
+            <li><strong>Web UI:</strong> <code>http://localhost:8080/</code></li>
+            <li><strong>Interactive Docs (Swagger UI):</strong> <code>http://localhost:8080/docs</code></li>
+        </ul>
+        <p>Source data files for testing are located in the <code>/data</code> folder.</p>
+
+        <hr>
+
+        <h2>⚡ Local Development with uv</h2>
+        <p>For fast, isolated, and repeatable local development without Docker, use <strong>uv</strong> (the fast Python package installer). This setup relies on the dependencies defined in <strong><code>pyproject.toml</code></strong>.</p>
+        
+        <h3>Prerequisites</h3>
+        <ul>
+            <li><strong>Python 3.10+</strong> installed.</li>
+            <li>The <strong>uv</strong> tool installed (e.g., via <code>pip install uv</code>).</li>
+            <li>Your <strong>AWS credentials</strong> configured in a local <code>.env</code> file (see the Docker section for the required variables).</li>
+        </ul>
+
+        <h3>1. Create and Activate the Virtual Environment</h3>
+        <p>Navigate to the project root and use <code>uv</code> to create a virtual environment and install packages.</p>
+        <pre><code># Create the virtual environment in the .venv directory
+uv venv
+
+# Activate the environment (Example for Linux/macOS)
+source .venv/bin/activate
+# Example for Windows PowerShell
+.venv\Scripts\Activate.ps1
+</code></pre>
+
+        <h3>2. Install Dependencies</h3>
+        <p>Use <code>uv pip install</code> to install all dependencies specified in <code>pyproject.toml</code>.</p>
+        <pre><code># Install all production dependencies
+uv pip install -e .
+</code></pre>
+
+        <h3>3. Run the Service</h3>
+        <p>Start the application using the <code>uvicorn</code> web server.</p>
+        <pre><code># Start the Uvicorn server (with --reload for development)
+uvicorn src.main:app --reload --port 8080
+</code></pre>
+
+        <h3>4. Access the API</h3>
+        <p>The application will be available at <strong><code>http://localhost:8080</code></strong>.</p>
+        
+        <h3>5. Deactivate</h3>
+        <p>When you are finished, deactivate the virtual environment:</p>
+        <pre><code>deactivate
+</code></pre>
+
+        <hr>
+        
+        <h2>🤖 LLM Integration and AI Usage Note</h2>
+        
+        <h3>LLM Implementation Details</h3>
+        <p>The service is configured to use <strong>AWS Bedrock</strong> for generating remedial justifications, utilizing a strategic inference configuration:</p>
+        <ul>
+            <li><strong>Provider</strong>: Configured via environment variables (defaults to <code>anthropic.claude-3-haiku-20240307-v1:0</code>).</li>
+            <li><strong>Low Temperature (<code>0.2</code>)</strong>: Ensures the model output is <strong>deterministic, reliable</strong>, and strictly grounded in the supplied policy rules.</li>
+            <li><strong>Max Tokens (<code>300</code>)</strong>: Limits the response length to control costs and enforce the small size required for a "manager-ready" report.</li>
+            <li><strong>Streaming Justification</strong>: The <code>/api/v1/findings</code> endpoint uses <strong>Server-Sent Events (SSE)</strong> to stream justifications asynchronously, providing a real-time, responsive user experience.</li>
+            <li><strong>Intelligent Prompting</strong>: The prompt includes comprehensive context (role grant dates, department, full policy context) and strict <strong>Decision-Making Rules</strong> to guide the LLM toward the most secure and minimally disruptive remediation action. (<em>The prompt logic is defined in <code>src/utils/prompts.py</code>.</em>)</li>
+        </ul>
+
+        <h3>Data and Compliance</h3>
+        <ul>
+            <li><strong>GDPR Compliance</strong>: All <strong>Personally Identifiable Information (PII)</strong> is removed from the data sent to the LLM. The <code>/evidence</code> log ensures compliance by manually redacting the user's name and storing the email in the required redacted format (e.g., <code>a***@domain.tld</code>).</li>
+        </ul>
+
+        <h3>AI Tool Usage Transparency</h3>
+        <p>In accordance with the challenge guidelines, AI tools were utilized to accelerate development:</p>
+        <ul>
+            <li><strong>Code Generation/Refactoring</strong>: Anthropic Claude and Google Gemini Pro were instrumental in developing the <code>asyncio</code> streaming logic, discussing doubts, writing UI code, and formatting this README.</li>
+            <li><strong>Testing/Data</strong>: ChatGPT was used to generate initial seed files and testing datasets.</li>
+        </ul>
+
+        <hr>
+
+        <h2>🌐 Core Ingestion Logic &amp; API Reference</h2>
+        
+        <h3>Core Ingestion Logic</h3>
+        <p>The ingestion engine implements critical business rules for resilience and accuracy:</p>
+        <ul>
+            <li><strong>Resilient Processing</strong>: CSV files are streamed and processed row-by-row. If <strong>data corruption</strong> is detected, only the corrupt rows are rejected, and findings generation proceeds with the valid subset of data.</li>
+            <li><strong>Error Reporting</strong>: Corrupt data is isolated, and download links are provided after ingestion, allowing users to review and remediate bad rows in CSV format.</li>
+            <li><strong>Logging</strong>: All application activities are logged to <code>app.log</code>. Critical failures are isolated to <code>error.log</code>.</li>
+        </ul>
+
+        <h3>API Endpoints</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Endpoint</th>
+                    <th>Method</th>
+                    <th>Description</th>
+                    <th>Output</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>/api/v1/ingest</code></td>
+                    <td><code>POST</code></td>
+                    <td>Loads user assignments and policies into the system.</td>
+                    <td><code>IngestResponse</code></td>
+                </tr>
+                <tr>
+                    <td><code>/api/v1/ingest/errors/assignments</code></td>
+                    <td><code>GET</code></td>
+                    <td>Downloads a CSV of all <strong>rejected rows</strong> from the assignments file.</td>
+                    <td><code>text/csv</code></td>
+                </tr>
+                <tr>
+                    <td><code>/api/v1/ingest/errors/policies</code></td>
+                    <td><code>GET</code></td>
+                    <td>Downloads a CSV of all invalid or single-role policies.</td>
+                    <td><code>text/csv</code></td>
+                </tr>
+                <tr>
+                    <td><code>/api/v1/findings</code></td>
+                    <td><code>GET</code></td>
+                    <td>Initiates the scan and <strong>streams findings</strong> with LLM justifications.</td>
+                    <td><code>text/event-stream</code></td>
+                </tr>
+                <tr>
+                    <td><code>/api/v1/simulate</code></td>
+                    <td><code>POST</code></td>
+                    <td>Runs a <strong>"what-if" scenario</strong> by temporarily removing a role.</td>
+                    <td><code>SimulationResponse</code></td>
+                </tr>
+                <tr>
+                    <td><code>/api/v1/evidence</code></td>
+                    <td><code>GET</code></td>
+                    <td>Generates a complete, GDPR-redacted JSON audit pack.</td>
+                    <td><code>EvidenceLog (JSON)</code></td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <hr>
+
+        <h2>🚧 Future Work</h2>
+        <p>If given more time, the following features would be prioritized:</p>
+        <ul>
+            <li><strong>Scalability Testing</strong>: Explore advanced patterns for handling very large numbers of LLM Bedrock calls (e.g., thousands of findings) to ensure the streaming architecture maintains stability and performance under production load.</li>
+            <li><strong>CI/CD Maturity</strong>: Fully implement and automate a Continuous Integration pipeline to run linting and comprehensive unit tests automatically on every push.</li>
+            <li><strong>Advanced Remediation Logic</strong>: Implement more complex heuristics in the detection engine to guarantee the absolute optimal role revocation when one role is the common denominator in multiple toxic policy violations across a user.</li>
+        </ul>
+
+    </div></body>
+</html>

@@ -1,0 +1,7 @@
+__pycache__
+*.log logs/
+.env .env.*
+.DS_Store
+*.log
+uv.lock
+*uv*
