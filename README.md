@@ -1,3 +1,7 @@
+Yes, here is the full, enhanced README, integrating the new section for local development using **uv** and keeping the preferred **Docker Compose** option.
+
+-----
+
 # 🔍 Toxic Combo Scanner: Segregation of Duties (SoD) Detector
 
 **SoD violation detector with LLM justification for manager-ready reports.**
@@ -8,8 +12,6 @@
 | **API Docs (Swagger)** | [https://myapp-production-d4ce.up.railway.app/docs](https://myapp-production-d4ce.up.railway.app/docs) |
 | **Video Walkthrough** | [YouTube Video link](https://www.youtube.com/watch?v=3tei_u6LiI8) |
 
------
-
 ## Project Overview
 
 This service addresses the challenge of identifying **Segregation of Duties (SoD) violations** from large-scale user role assignments. It is built for **memory efficiency**, processing data row-by-row without reliance on tools like Pandas to ensure large CSV files can be handled without memory overflow.
@@ -18,9 +20,9 @@ The core value proposition is the use of an **LLM (Large Language Model)** to ge
 
 -----
 
-## 🚀 Getting Started (One-Command Run)
+## 🚀 Getting Started (Recommended: Docker Compose)
 
-The preferred method for running this project is using **Docker Compose**, which manages all dependencies and Bedrock configuration in a single step.
+The preferred and simplest method for running this project is using **Docker Compose**, which manages all dependencies and Bedrock configuration in a single step.
 
 ### Prerequisites
 
@@ -29,7 +31,7 @@ The preferred method for running this project is using **Docker Compose**, which
 
 ### 1\. Configure AWS Access
 
-Create a `.env` file in the project root to include your live AWS credentials for Bedrock access.
+Create a `.env` file in the project root based on the configuration below, including your live AWS credentials for Bedrock access.
 
 ```ini
 # .env (Example Configuration)
@@ -60,14 +62,68 @@ docker compose up --build
 
 ### 3\. Access the Application
 
-The service will be available at the following locations:
+The service will be available at:
 
-| Service | URL |
-| :--- | :--- |
-| **Web UI** | `http://localhost:8080/` |
-| **Interactive Docs (Swagger UI)** | `http://localhost:8080/docs` |
+  * **Web UI:** `http://localhost:8080/`
+  * **Interactive Docs (Swagger UI):** `http://localhost:8080/docs`
 
 Source data files for testing are located in the `/data` folder.
+
+-----
+
+## ⚡ Local Development with uv
+
+For fast, isolated, and repeatable local development without Docker, use **uv** (the fast Python package installer). This setup relies on the dependencies defined in **`pyproject.toml`**.
+
+### Prerequisites
+
+  * **Python 3.10+** installed.
+  * The **uv** tool installed (e.g., via `pip install uv`).
+  * Your **AWS credentials** configured in a local `.env` file (see the Docker section for the required variables).
+
+### 1\. Create and Activate the Virtual Environment
+
+Navigate to the project root and use `uv` to create a virtual environment and install packages.
+
+```bash
+# Create the virtual environment in the .venv directory
+uv venv
+
+# Activate the environment (Example for Linux/macOS)
+source .venv/bin/activate
+# Example for Windows PowerShell
+.venv\Scripts\Activate.ps1
+```
+
+### 2\. Install Dependencies
+
+Use `uv pip install` to install all dependencies specified in `pyproject.toml`.
+
+```bash
+# Install all production dependencies
+uv pip install -e .
+```
+
+### 3\. Run the Service
+
+Start the application using the `uvicorn` web server.
+
+```bash
+# Start the Uvicorn server (with --reload for development)
+uvicorn src.main:app --reload --port 8080
+```
+
+### 4\. Access the API
+
+The application will be available at **`http://localhost:8080`**.
+
+### 5\. Deactivate
+
+When you are finished, deactivate the virtual environment:
+
+```bash
+deactivate
+```
 
 -----
 
@@ -80,7 +136,7 @@ The service is configured to use **AWS Bedrock** for generating remedial justifi
   * **Provider**: Configured via environment variables (defaults to `anthropic.claude-3-haiku-20240307-v1:0`).
   * **Low Temperature (`0.2`)**: Ensures the model output is **deterministic, reliable**, and strictly grounded in the supplied policy rules.
   * **Max Tokens (`300`)**: Limits the response length to control costs and enforce the small size required for a "manager-ready" report.
-  * **Streaming Justification**: The `/api/v1/findings` endpoint uses **Server-Sent Events (SSE)** to stream justifications asynchronously, preventing API throttling and providing a real-time, responsive user experience.
+  * **Streaming Justification**: The `/api/v1/findings` endpoint uses **Server-Sent Events (SSE)** to stream justifications asynchronously, providing a real-time, responsive user experience.
   * **Intelligent Prompting**: The prompt includes comprehensive context (role grant dates, department, full policy context) and strict **Decision-Making Rules** to guide the LLM toward the most secure and minimally disruptive remediation action. *(The prompt logic is defined in `src/utils/prompts.py`.)*
 
 ### Data and Compliance
@@ -102,7 +158,7 @@ In accordance with the challenge guidelines, AI tools were utilized to accelerat
 
 The ingestion engine implements critical business rules for resilience and accuracy:
 
-  * **Resilient Processing**: CSV files are streamed and processed row-by-row. If **data corruption** is detected (e.g., bad format, missing required fields), only the corrupt rows are rejected, and findings generation proceeds with the valid subset of data.
+  * **Resilient Processing**: CSV files are streamed and processed row-by-row. If **data corruption** is detected, only the corrupt rows are rejected, and findings generation proceeds with the valid subset of data.
   * **Error Reporting**: Corrupt data is isolated, and download links are provided after ingestion, allowing users to review and remediate bad rows in CSV format.
   * **Logging**: All application activities are logged to `app.log`. Critical failures are isolated to `error.log`.
 
