@@ -25,17 +25,25 @@ Create a .env file in the project root based on docker-compose.yml (or your loca
 Ini, TOML
 # .env (Example Configuration)
 # --- AWS Credentials (Required for Bedrock) ---
+
 AWS_ACCESS_KEY_ID=AKIA...
+
 AWS_SECRET_ACCESS_KEY=wXyZ...
 # AWS_SESSION_TOKEN=... (if using temporary credentials)
 
 # --- LLM Configuration (Override defaults in src/config.py) ---
 LLM_PROVIDER=bedrock 
+
 USE_MOCK_LLM=false
+
 AWS_REGION=eu-central-1
+
 BEDROCK_MODEL_ID=anthropic.claude-3-haiku-20240307-v1:0
+
 BEDROCK_MODEL_TEMPERATURE=0.2
+
 BEDROCK_MODEL_MAX_TOKENS=300
+
 Note: Setting USE_MOCK_LLM=true will bypass the need for AWS credentials entirely.
 
 2. Build and Run the Service
@@ -86,11 +94,17 @@ Testing/Data: ChatGPT was used to generate initial seed files and testing datase
 🌐 API Usage and Error Reporting
 Endpoint	Method	Description	Output
 /api/v1/ingest	POST	Loads user assignments and policies.	IngestResponse
+
 /api/v1/ingest/errors/assignments	GET	Downloads a CSV containing all rejected rows from the assignments file.	text/csv
+
 /api/v1/ingest/errors/policies	GET	Downloads a CSV containing all invalid or single-role policies.	text/csv
+
 /api/v1/findings	GET	Initiates scan and streams findings + LLM justifications.	text/event-stream
+
 /api/v1/simulate	POST	Runs a "what-if" scenario by temporarily removing a role.	SimulationResponse
+
 /api/v1/evidence	GET	Generates a complete, GDPR-redacted JSON audit pack.	EvidenceLog (JSON)
+
 Logging: All application activities are logged to app.log, while only critical failures (ERROR/CRITICAL) are isolated and logged to error.log.
 
 Core Ingestion Logic
