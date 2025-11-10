@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Toxic Combo Scanner</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="header">
+        <h1>🔍 Toxic Combo Scanner</h1>
+        <p class="subtitle">Segregation of Duties (SoD) Violation Detector</p>
+        <a href="/docs" class="api-link" target="_blank">📖 API Documentation</a>
+        <div id="llmStatusBanner" class="status info" style="display:none;">
+            <span id="llmStatusText"></span>
+            <button class="banner-close" onclick="dismissLLMStatus(event)">×</button>
+        </div>
+    </div>
+
+    <details class="section" open>
+        <summary><span>1. Load Data</span></summary>
+        <div class="section-body">
+            <div class="file-upload-area">
+                <p><strong>Upload CSVs:</strong></p>
+                <div class="error-links">
+                    <a href="/api/v1/ingest/errors/assignments" class="api-link" style="display: none;" id="assignmentErrorsLink">Download Assignment Errors</a>
+                    <a href="/api/v1/ingest/errors/policies" class="api-link" style="display: none;" id="policyErrorsLink">Download Policy Errors</a>
+                </div>
+                <div class="file-input-group">
+                    <label>Assignments CSV:</label><br>
+                    <input type="file" id="assignmentsFile" accept=".csv">
+                </div>
+                <div class="file-input-group">
+                    <label>Policies CSV: (Optional, uses defaults if empty)</label><br>
+                    <input type="file" id="policiesFile" accept=".csv">
+                </div>
+                <button onclick="uploadFiles()">📤 Upload & Analyze</button>
+            </div>
+            <div id="ingestStatus"></div>
+        </div>
+    </details>
+
+    <details class="section">
+        <summary><span>2. Findings &amp; Decisions</span></summary>
+        <div class="section-body">
+            <div class="findings-header">
+                <div class="findings-controls">
+                    <button onclick="loadFindings()">🔄 Generate Findings</button>
+                    <span id="findingsCount" class="findings-count-text">(0 users in violation)</span>
+                </div>
+                <div class="findings-actions">
+                    <button onclick="downloadEvidence()" class="secondary">💾 Download Evidence Log</button>
+                </div>
+            </div>
+            <div id="findingsContainer" style="margin-top: 20px;">
+                <div class="empty-state">
+                    <p>No data loaded yet. Please upload CSV files above.</p>
+                </div>
+
+                <div id="ingestStatus"></div>
+            </div>
+        </div>
+    </details>
+
+    <details class="section" id="statsSection" style="display:none;">
+        <summary><span>3. Statistics</span></summary>
+        <div class="section-body">
+            <div id="policySummaryContainer">
+            </div>
+        </div>
+    </details>
+
+    <!-- Simulation Modal (RESTORED) -->
+    <div id="simulationModal" class="modal-overlay" onclick="closeModal('simulationModal')">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2 id="simModalTitle">Simulation Result</h2>
+                <span class="modal-close" onclick="closeModal('simulationModal')">&times;</span>
+            </div>
+            <div class="modal-body" id="simModalBody">
+                <p>Loading...</p>
+            </div>
+            <div class="modal-footer">
+                <button class="secondary" onclick="closeModal('simulationModal')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Decision Modal -->
+    <div id="decisionModal" class="modal-overlay" onclick="closeModal('decisionModal')">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2 id="decisionModalTitle">Submit Decision</h2>
+                <span class="modal-close" onclick="closeModal('decisionModal')">&times;</span>
+            </div>
+            <form id="decisionForm" onsubmit="submitDecision(event)">
+                <div class="modal-body">
+                    <input type="hidden" id="decisionUserId" name="user_id">
+                    <div class="form-group">
+                        <label for="decisionType">Decision:</label>
+                        <select id="decisionType" name="decision" onchange="toggleRevokeRole(this.value)" required>
+                            <option value="" disabled selected>-- Select a decision --</option>
+                            <option value="investigate">Investigate</option>
+                            <option value="accept_risk">Accept Risk</option>
+                            <option value="revoke_role">Revoke Role</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="revokeRoleGroup" style="display:none;">
+                        <label>Role(s) to Revoke:</label>
+                        <div id="decisionRoleCheckboxes">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="decisionBy">Decided By:</label>
+                        <input type="text" id="decisionBy" name="decided_by" value="n26_manager" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="decisionNotes">Notes (Optional):</label>
+                        <textarea id="decisionNotes" name="notes" placeholder="Add justification for the decision..."></textarea>
+                    </div>
+                    <div id="decisionStatus" style="display:none;"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="secondary" onclick="closeModal('decisionModal')">Cancel</button>
+                    <button type="submit" id="decisionSubmitBtn">Submit Decision</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>

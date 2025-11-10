@@ -1,0 +1,13 @@
+policy_id,description,roles
+P1,"Payments and Trading roles must not co-exist","[\"PaymentsAdmin\",\"TradingDesk\"]"
+P2,"Incompatible cloud admin roles","[\"Root\",\"OktaSuperAdmin\"]"
+P3,"Maker-checker violation","[\"FinanceApprover\",\"PaymentsAdmin\"]"
+P4,"Auditor independence violation","[\"AuditRead\",\"ComplianceReview\",\"OktaSuperAdmin\"]"
+P5,"Auditor independence Cloud admin","[\"AuditRead\",\"ComplianceReview\",\"AWS_Admin\"]"
+P6,"Vendor risk conflict","[\"VendorPayment\",\"ProcurementApproval\"]"
+P7,"Expense authorization conflict","[\"ExpenseApprover\",\"BudgetOwner\"]"
+P8,"Data access and deletion conflict","[\"DataRead\",\"DataDelete\"]"
+P9,"Cross-environment deployment conflict","[\"ProdDeployer\",\"DevOpsAdmin\"]"
+P10,"Customer account tampering risk","[\"CRMWrite\",\"FinanceApprover\"]"
+P11,"Sensitive HR access","[\"HRManager\",\"PayrollAdmin\"]"
+P12,"Security override conflict","[\"SecurityAudit\",\"SystemOverride\",\"Root\"]"

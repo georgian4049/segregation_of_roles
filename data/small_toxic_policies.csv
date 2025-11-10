@@ -1,0 +1,6 @@
+policy_id,description,roles
+P1,Cross-functional conflict,"[""PaymentsAdmin"", ""TradingDesk""]"
+P2,Excessive infrastructure access,"[""Root"", ""OktaSuperAdmin""]"
+P3,Maker-checker violation,"[""FinanceApprover"", ""PaymentsAdmin""]"
+P4,Auditor independence violation,"[""AuditRead"", ""ComplianceReview"", ""OktaSuperAdmin""]"
+P5,Auditor independence Cloud admin,"[""AuditRead"", ""ComplianceReview"", ""AWS_Admin""]"

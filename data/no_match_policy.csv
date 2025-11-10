@@ -1,0 +1,6 @@
+policy_id,description,roles
+P1,"Payments and Trading roles must not co-exist","[\"PaymentsAdmin\",\"TradingDesk\"]"
+P2,"Incompatible cloud admin roles","[\"Root\",\"OktaSuperAdmin\"]"
+P3,"Maker-checker violation","[\"Okta\",\"PaymentsAdmin\"]"
+P4,"Maker-checker violation","[\"Okta\",\"OktaAdmin\"]"
+

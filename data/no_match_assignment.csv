@@ -1,0 +1,6 @@
+user_id,name,email,department,status,role,source_system,granted_at_iso
+u1,Ana Silva,ana@bank.tld,Payments,active,PaymentsAdmins,Okta,2025-06-01T10:00:00Z
+u1,Ana Silva,ana@bank.tld,Payments,active,TradingDesks,Okta,2025-06-02T10:00:00Z
+u1,Ana Silva,ana@bank.tld,Payments,active,Okta,Oktas,2025-06-02T10:00:00Z
+u1,Ana Silva,ana@bank.tld,Payments,active,OktaAdmins,Okta,2025-06-02T10:00:00Z
+
