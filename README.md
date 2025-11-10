@@ -2,7 +2,9 @@
 SoD violation detector with LLM justification
 
 Try me on -> https://myapp-production-d4ce.up.railway.app
+
 API DOCS -> https://myapp-production-d4ce.up.railway.app/docs
+
 YouTube Video link -> https://www.youtube.com/watch?v=3tei_u6LiI8
 
 This service detects Segregation of Duties (SoD) violations from uploaded CSVs of user role assignments and toxic policies. It is built to be memory-efficient, handling large files by streaming and processing data row-by-row, without relying on tools like Pandas. The core functionality centers around generating manager-ready justifications using an LLM.
