@@ -17,7 +17,7 @@ jobs:
     steps:
       # 2. Pin actions to SHA (example hashes below, verify latest)
       - name: Checkout Code
-        uses: actions/checkout@b4ffde65f4633668828d0b93fc251d336ab06566
+        uses: actions/checkout@ff7abcd0c3c05ccf6adc123a8cd1fd4fb30fb493
 
       - name: Install uv
         uses: astral-sh/setup-uv@f94ec6bed83daee5c60949f5f031659536520e5e
