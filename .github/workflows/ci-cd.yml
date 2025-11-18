@@ -21,7 +21,7 @@ jobs:
         uses: astral-sh/setup-uv@d7d33e16d4ecbbea0da49ecb6fcc16df877ddac8
 
       - name: Set up Python
-        uses: actions/setup-python@39d22f8eaf6d55612bea6e6ef5e419fd4142c1e4
+        uses: actions/setup-python@97aeb3efb8a852c559869050c7fb175b4efcc8cf
         with:
           python-version: "3.13"
 
