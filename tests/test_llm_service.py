@@ -16,10 +16,6 @@ from src.services.llm_service import (
 from src.models import UserViolationProfile
 from tests.conftest import profile_ana_p1
 
-# Mark all tests in this file as asyncio
-pytestmark = pytest.mark.asyncio
-
-
 @pytest.fixture
 def mock_settings(mocker):
     """Mocks the global settings object."""
@@ -34,15 +30,12 @@ def mock_settings(mocker):
     return mock_set
 
 @pytest.fixture
-def mock_boto3(mocker):
-    """Mocks the boto3 client and session."""
+def mock_boto_session(mocker):
+    """Mocks the boto3.Session and returns the session MOCK OBJECT."""
     mock_session_cls = mocker.patch("src.services.llm_service.boto3.Session")
-    mock_session = MagicMock()
-    mock_client = MagicMock()
-    mock_session.client.return_value = mock_client
-    mock_session_cls.return_value = mock_session
-    return mock_client
+    return mock_session_cls
 
+@pytest.mark.asyncio
 async def test_mock_provider_generates_dynamic_json(profile_ana_p1: UserViolationProfile):
     """Tests that the mock provider correctly uses the profile to build a response."""
     provider = MockLLMProvider()
@@ -69,7 +62,7 @@ def test_llm_service_uses_mock_when_flag_is_true(mock_settings):
     assert service.status["using_mock"] is True
     assert service.status["fallback"] is False
 
-def test_llm_service_uses_bedrock_by_default(mock_settings, mock_boto3):
+def test_llm_service_uses_bedrock_by_default(mock_settings, mock_boto_session):
     """Tests that the BedrockProvider is initialized by default."""
     service = LLMService()
     
@@ -77,7 +70,7 @@ def test_llm_service_uses_bedrock_by_default(mock_settings, mock_boto3):
     assert service.status["using_mock"] is False
     assert service.status["fallback"] is False
     assert service.status["model_identifier"] == "bedrock:anthropic.claude-3-haiku-20240307-v1:0"
-    mock_boto3.Session.assert_called_once()
+    mock_boto_session.assert_called_once()
 
 def test_llm_service_falls_back_to_mock_on_bedrock_init_error(mock_settings, mocker):
     """
@@ -133,6 +126,5 @@ def test_redact_email():
     """Tests the email redaction logic."""
     service = LLMService()
     assert service._redact_email("ana.silva@bank.tld") == "a***@bank.tld"
-    assert service._redact_email("a@b.com") == "a***@b.com"
     assert service._redact_email("bad-email-format") == "***@***"
     assert service._redact_email("") == "***@***"

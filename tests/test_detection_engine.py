@@ -72,13 +72,12 @@ def test_detect_violations_finds_no_matches(
     profiles = engine.detect_violations(user_states)
     assert len(profiles) == 0
 
-def test_detect_violations_handles_no_policies():
+def test_detect_violations_handles_no_policies(user_ana_violates_p1: UserRoleState):
     """Tests that the engine returns no violations if no policies are loaded."""
     empty_store = PolicyStore()
     engine = DetectionEngine(empty_store)
     
-    # We can use any user here, as no policies exist to match
-    user_states = {"u1": user_ana_violates_p1()} 
+    user_states = {"u1": user_ana_violates_p1} 
     
     profiles = engine.detect_violations(user_states)
     assert len(profiles) == 0
