@@ -18,7 +18,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
       - name: Install uv
-        uses: astral-sh/setup-uv@0e88114882f7060628487147b3a4b22f45536399
+        uses: astral-sh/setup-uv@d7d33e16d4ecbbea0da49ecb6fcc16df877ddac8
 
       - name: Set up Python
         uses: actions/setup-python@39d22f8eaf6d55612bea6e6ef5e419fd4142c1e4
