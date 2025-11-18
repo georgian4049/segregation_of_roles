@@ -6,7 +6,6 @@ on:
   pull_request:
     branches: [ "main" ]
 
-# 1. Limit permissions to read-only
 permissions:
   contents: read
 
@@ -15,15 +14,14 @@ jobs:
     name: 🛡️ Quality Gate (Lint & Test)
     runs-on: ubuntu-latest
     steps:
-      # 2. Pin actions to SHA (example hashes below, verify latest)
       - name: Checkout Code
-        uses: actions/checkout@b4ffde65f4633668828d0b93fc251d336ab06566
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
       - name: Install uv
-        uses: astral-sh/setup-uv@f94ec6bed83daee5c60949f5f031659536520e5e
+        uses: astral-sh/setup-uv@d7d33e16d4ecbbea0da49ecb6fcc16df877ddac8
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@97aeb3efb8a852c559869050c7fb175b4efcc8cf
         with:
           python-version: "3.13"
 
@@ -32,23 +30,18 @@ jobs:
 
       - name: 🧹 Lint with Ruff
         run: |
-          # Run linter (check for bugs/style)
           uv run ruff check src tests
-          # Run formatter check (ensure code is pretty)
           uv run ruff format --check src tests
 
       - name: 🔍 Type Check with Mypy
         run: uv run mypy src
 
       - name: 🧪 Run Unit Tests
-        # We set mock vars to ensure tests don't try to hit real AWS
         env:
           USE_MOCK_LLM: "true"
           LLM_PROVIDER: "mock"
         run: |
           uv run pytest --cov=src --cov-report=term-missing
-
-  # --- JOB 2: BUILD & PUSH ---
 
   build-and-push:
     name: 🐳 Build & Push Docker Image
@@ -58,23 +51,22 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@b4ffde65f4633668828d0b93fc251d336ab06566 # v4.1.1
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
       - name: Login to Docker Hub
-        uses: docker/login-action@343f7c4344506bcbf9b4de18042ae17996df046d # v3.0.0
+        uses: docker/login-action@28fdb31ff34708d19615a74d67103ddc2ea9725c
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@f95db51fddba0c2d1ec667646a06c2ce06100226 # v3.0.0
+        uses: docker/setup-buildx-action@1583c0f09d26c58c59d25b0eef29792b7ce99d9a
 
       - name: Build and Push
-        uses: docker/build-push-action@4a13e500e55cf31b7a5d59a38ab2040ab0f42f56 # v5.1.0
+        uses: docker/build-push-action@9e436ba9f2d7bcd1d038c8e55d039d37896ddc5d
         with:
           context: .
           push: true
-          # 3. Use secrets for consistency instead of env vars
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:latest
             ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
