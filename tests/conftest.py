@@ -5,7 +5,7 @@ This file provides reusable, modular data for use across all test files.
 Fixtures are a core feature of pytest, enabling dependency injection for tests.
 """
 import pytest
-from datetime import datetime
+from datetime import datetime, timedelta  # <-- Make sure timedelta is imported
 from src.models import (
     ToxicPolicy, 
     UserRoleState, 
@@ -51,10 +51,11 @@ def populated_policy_store(sample_policies_list) -> PolicyStore:
 
 def _create_role_assignment(role: str, system: str, days_ago: int) -> RoleAssignment:
     """Helper to create a RoleAssignment with a relative date."""
+    base_date = datetime(2025, 1, 20) 
     return RoleAssignment(
         role=role,
         source_system=system,
-        granted_at=datetime(2025, 1, 10 - days_ago)
+        granted_at=base_date - timedelta(days=days_ago) 
     )
 
 @pytest.fixture

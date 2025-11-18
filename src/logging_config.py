@@ -32,11 +32,11 @@ def setup_logging():
     console_handler.setLevel(logging.INFO)
     console_handler.setFormatter(formatter)
 
-    app_log_handler = logging.FileHandler("app.log")
+    app_log_handler = logging.FileHandler("logs/app.log")
     app_log_handler.setLevel(logging.INFO)
     app_log_handler.setFormatter(formatter)
 
-    error_log_handler = logging.FileHandler("error.log")
+    error_log_handler = logging.FileHandler("logs/error.log")
     error_log_handler.setLevel(logging.ERROR) 
     error_log_handler.setFormatter(formatter)
     
