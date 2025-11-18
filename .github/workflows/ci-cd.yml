@@ -58,7 +58,7 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@b4ffde65f4633668828d0b93fc251d336ab06566 # v4.1.1
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.1.1
 
       - name: Login to Docker Hub
         uses: docker/login-action@343f7c4344506bcbf9b4de18042ae17996df046d # v3.0.0
