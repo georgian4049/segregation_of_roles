@@ -1,7 +1,27 @@
-__pycache__
-*.log logs/
-.env .env.*
-.DS_Store
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+
+# --- Environments ---
+.env
+.venv/
+venv/
+ENV/
+
+# --- Testing & Quality ---
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+coverage.xml
+
+# --- Logs ---
 *.log
-uv.lock
-*uv*
+logs/
+
+# --- IDEs ---
+.vscode/
+.idea/
+.DS_Store

@@ -1,33 +1,31 @@
 name: CI/CD Pipeline
 
-# Trigger the workflow on push or pull request events
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "feat/*", "fix/*" ]
   pull_request:
     branches: [ "main" ]
 
-env:
-  # Replace this with your actual Docker Hub username
-  DOCKER_USERNAME: your_dockerhub_username
-  IMAGE_NAME: toxic-combo-scanner
+# 1. Limit permissions to read-only
+permissions:
+  contents: read
 
 jobs:
-  # --- JOB 1: QUALITY GATE ---
   quality-gate:
     name: 🛡️ Quality Gate (Lint & Test)
     runs-on: ubuntu-latest
     steps:
+      # 2. Pin actions to SHA (example hashes below, verify latest)
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@b4ffde65f4633668828d0b93fc251d336ab06566
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v1
+        uses: astral-sh/setup-uv@f94ec6bed83daee5c60949f5f031659536520e5e
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: "3.13"
 
       - name: Install Dependencies
         run: uv pip install --system -e ".[dev]"
@@ -51,33 +49,32 @@ jobs:
           uv run pytest --cov=src --cov-report=term-missing
 
   # --- JOB 2: BUILD & PUSH ---
+
   build-and-push:
     name: 🐳 Build & Push Docker Image
-    needs: quality-gate  # Waits for quality-gate to pass
+    needs: quality-gate
     runs-on: ubuntu-latest
-    # Only run this job on the main branch (don't push PR builds)
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    
+
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@b4ffde65f4633668828d0b93fc251d336ab06566 # v4.1.1
 
       - name: Login to Docker Hub
-        uses: docker/login-action@v3
+        uses: docker/login-action@343f7c4344506bcbf9b4de18042ae17996df046d # v3.0.0
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@f95db51fddba0c2d1ec667646a06c2ce06100226 # v3.0.0
 
       - name: Build and Push
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@4a13e500e55cf31b7a5d59a38ab2040ab0f42f56 # v5.1.0
         with:
           context: .
           push: true
+          # 3. Use secrets for consistency instead of env vars
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:latest
             ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
-          cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:buildcache
-          cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:buildcache,mode=max
