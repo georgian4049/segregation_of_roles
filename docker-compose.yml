@@ -8,8 +8,8 @@ services:
     environment:
       - APP_ENV=development
       - LOG_LEVEL=INFO
-      - LLM_PROVIDER=bedrock #bedrock
-      - USE_MOCK_LLM=false #true
+      - LLM_PROVIDER=bedrock
+      - USE_MOCK_LLM=false
       - AWS_REGION=eu-central-1
       - BEDROCK_MODEL_ID=anthropic.claude-3-haiku-20240307-v1:0
       - BEDROCK_MODEL_TEMPERATURE=0.2
@@ -19,4 +19,53 @@ services:
     volumes:
       - ./data:/app/data
       - ./src:/app/src
+      - ./logs:/app/logs  # Map logs folder to host for local debugging
     command: uvicorn src.main:app --host 0.0.0.0 --port 8080 --reload
+    # NEW: Configure logging driver to send logs to Fluent Bit
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: localhost:24224
+        tag: api.logs
+    depends_on:
+      - fluent-bit
+
+  # --- NEW SERVICES FOR LOGGING ---
+
+  opensearch:
+    image: opensearchproject/opensearch:latest
+    container_name: opensearch
+    environment:
+      - discovery.type=single-node
+      - "DISABLE_INSTALL_DEMO_CONFIG=true" # Disable security for local dev simplicity
+      - "plugins.security.disabled=true"
+    ports:
+      - "9200:9200"
+      - "9600:9600"
+    volumes:
+      - opensearch-data:/usr/share/opensearch/data
+
+  opensearch-dashboards:
+    image: opensearchproject/opensearch-dashboards:latest
+    container_name: opensearch-dashboards
+    ports:
+      - "5601:5601"
+    environment:
+      - 'OPENSEARCH_HOSTS=["http://opensearch:9200"]'
+      - "DISABLE_SECURITY_DASHBOARDS_PLUGIN=true"
+    depends_on:
+      - opensearch
+
+  fluent-bit:
+    image: fluent/fluent-bit:latest
+    container_name: fluent-bit
+    ports:
+      - "24224:24224"
+      - "24224:24224/udp"
+    volumes:
+      - ./fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf
+    depends_on:
+      - opensearch
+
+volumes:
+  opensearch-data:

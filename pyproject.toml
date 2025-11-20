@@ -12,6 +12,7 @@ dependencies = [
     "python-dotenv>=1.0.0",
     "boto3>=1.34.0",
     "python-json-logger>=4.0.0",
+    "pre-commit"
 ]
 
 [project.optional-dependencies]
@@ -22,7 +23,11 @@ dev = [
     "pytest-cov>=4.1.0",
     "ruff>=0.1.0",
     "mypy>=1.7.0",
-    "pre-commit>=4.4.0",        # Moved from dependencies
+    "pre-commit>=4.4.0",
+    "httpx>=0.27.0",
+    "pandas>=2.0.0",
+    "tqdm>=4.66.0",
+    "opensearch-py>=3.0.0",
 ]
 
 [tool.pytest.ini_options]

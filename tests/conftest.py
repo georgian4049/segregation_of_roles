@@ -5,17 +5,55 @@ This file provides reusable, modular data for use across all test files.
 Fixtures are a core feature of pytest, enabling dependency injection for tests.
 """
 import pytest
-from datetime import datetime, timedelta  # <-- Make sure timedelta is imported
+from datetime import datetime, timedelta
+from fastapi.testclient import TestClient
+
+from src.main import app
+from src.api import routes
 from src.models import (
-    ToxicPolicy, 
-    UserRoleState, 
-    RoleAssignment, 
+    ToxicPolicy,
+    UserRoleState,
+    RoleAssignment,
     AssignmentStatus,
-    UserViolationProfile
+    UserViolationProfile,
 )
 from src.services.policy_store import PolicyStore
 
+# --- API Client & State Management ---
+
+
+@pytest.fixture
+def client():
+    """
+    Returns a FastAPI TestClient.
+    This acts like a web browser or Postman for your tests.
+    """
+    return TestClient(app)
+
+
+@pytest.fixture(autouse=True)
+def reset_app_state():
+    """
+    Automatically resets the global singleton services before EVERY test.
+    This ensures Test A doesn't leave data that breaks Test B.
+    """
+    # Reset Ingestion Service
+    routes.ingestion_service.reset()
+
+    # Reset Policy Store (manually clearing the dict)
+    routes.policy_store._policies = {}
+
+    # Reset Decisions Store (global list in routes)
+    routes._decisions_store.clear()
+    routes._findings_cache.clear()
+
+    yield  # Run the test
+
+    # (Optional) Cleanup after test if needed
+
+
 # --- Policy Fixtures ---
+
 
 @pytest.fixture
 def sample_policy_p1() -> ToxicPolicy:
@@ -23,8 +61,9 @@ def sample_policy_p1() -> ToxicPolicy:
     return ToxicPolicy(
         policy_id="P1",
         description="Payments and Trading roles must not co-exist",
-        roles={"PaymentsAdmin", "TradingDesk"}
+        roles={"PaymentsAdmin", "TradingDesk"},
     )
+
 
 @pytest.fixture
 def sample_policy_p2() -> ToxicPolicy:
@@ -32,13 +71,15 @@ def sample_policy_p2() -> ToxicPolicy:
     return ToxicPolicy(
         policy_id="P2",
         description="Incompatible cloud admin roles",
-        roles={"Root", "OktaSuperAdmin"}
+        roles={"Root", "OktaSuperAdmin"},
     )
+
 
 @pytest.fixture
 def sample_policies_list(sample_policy_p1, sample_policy_p2) -> list[ToxicPolicy]:
     """Returns a list of all sample policies."""
     return [sample_policy_p1, sample_policy_p2]
+
 
 @pytest.fixture
 def populated_policy_store(sample_policies_list) -> PolicyStore:
@@ -47,16 +88,17 @@ def populated_policy_store(sample_policies_list) -> PolicyStore:
     store.update_policies(sample_policies_list)
     return store
 
+
 # --- User State Fixtures ---
+
 
 def _create_role_assignment(role: str, system: str, days_ago: int) -> RoleAssignment:
     """Helper to create a RoleAssignment with a relative date."""
-    base_date = datetime(2025, 1, 20) 
+    base_date = datetime(2025, 1, 20)
     return RoleAssignment(
-        role=role,
-        source_system=system,
-        granted_at=base_date - timedelta(days=days_ago) 
+        role=role, source_system=system, granted_at=base_date - timedelta(days=days_ago)
     )
+
 
 @pytest.fixture
 def user_ana_violates_p1() -> UserRoleState:
@@ -72,8 +114,9 @@ def user_ana_violates_p1() -> UserRoleState:
         department="Payments",
         status=AssignmentStatus.ACTIVE,
         active_roles=roles,
-        source_systems=["Okta"]
+        source_systems=["Okta"],
     )
+
 
 @pytest.fixture
 def user_lee_violates_p2() -> UserRoleState:
@@ -89,8 +132,9 @@ def user_lee_violates_p2() -> UserRoleState:
         department="Trading",
         status=AssignmentStatus.ACTIVE,
         active_roles=roles,
-        source_systems=["AWS", "Okta"]
+        source_systems=["AWS", "Okta"],
     )
+
 
 @pytest.fixture
 def user_john_no_violation() -> UserRoleState:
@@ -105,8 +149,9 @@ def user_john_no_violation() -> UserRoleState:
         department="IT",
         status=AssignmentStatus.ACTIVE,
         active_roles=roles,
-        source_systems=["Okta"]
+        source_systems=["Okta"],
     )
+
 
 @pytest.fixture
 def user_sam_inactive() -> UserRoleState:
@@ -121,8 +166,9 @@ def user_sam_inactive() -> UserRoleState:
         department="Security",
         status=AssignmentStatus.INACTIVE,
         active_roles=roles,
-        source_systems=["Okta"]
+        source_systems=["Okta"],
     )
+
 
 @pytest.fixture
 def user_maria_multi_violation() -> UserRoleState:
@@ -142,14 +188,14 @@ def user_maria_multi_violation() -> UserRoleState:
         department="Finance",
         status=AssignmentStatus.ACTIVE,
         active_roles=roles,
-        source_systems=["SAP", "Okta"]
+        source_systems=["SAP", "Okta"],
     )
+
 
 @pytest.fixture
 def profile_ana_p1(user_ana_violates_p1, sample_policy_p1) -> UserViolationProfile:
     """
     A complete, ready-to-use UserViolationProfile for Ana violating P1.
-    This is useful for testing the LLM and prompt services.
     """
     return UserViolationProfile(
         finding_id="FINDING-U1-12345",
@@ -158,5 +204,5 @@ def profile_ana_p1(user_ana_violates_p1, sample_policy_p1) -> UserViolationProfi
         conflicting_role_set={"PaymentsAdmin", "TradingDesk"},
         severity="high",
         reason="User violates 1 policies: P1",
-        suggested_action="revoke one role"
+        suggested_action="revoke one role",
     )
